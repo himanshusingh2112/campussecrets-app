@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup - College Secret</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-container h1 {
+            color: #1c1e21;
+            margin-bottom: 20px;
+        }
+        .login-container p {
+            color: #606770;
+            margin-bottom: 30px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-button {
+            width: 100%;
+            padding: 14px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .form-button:hover {
+            background-color: #166fe5;
+        }
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .success {
+            color: #28a745; /* Green */
+        }
+        .error {
+            color: #dc3545; /* Red */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h1>Welcome to College Secret</h1>
+        <p>Enter your anonymous username and password.</p>
+        
+        <form id="auth-form">
+            <input type="text" id="username" class="form-input" placeholder="Choose your Anonymous Username" required>
+            <input type="password" id="password" class="form-input" placeholder="Create a Password" required>
+            
+            <button type="submit" class="form-button">SignUp / Login</button>
+        </form>
+        
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // --- यह एक नकली डेटाबेस है। असली वेबसाइट में यह सर्वर पर होगा। ---
+        // मान लीजिए कि पहले से एक यूजर 'Admin' मौजूद है।
+        const userDatabase = [
+            { username: 'Admin', password: 'password123' }
+        ];
+
+        // फॉर्म एलिमेंट को सेलेक्ट करना
+        const authForm = document.getElementById('auth-form');
+        const messageDiv = document.getElementById('message');
+
+        // फॉर्म सबमिट होने पर यह फंक्शन चलेगा
+        authForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // पेज को रीलोड होने से रोकना
+
+            // यूजर द्वारा डाली गई वैल्यू लेना
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+
+            // चेक करना कि इनपुट खाली तो नहीं है
+            if (!usernameInput || !passwordInput) {
+                showMessage('Username and password cannot be empty.', 'error');
+                return;
+            }
+
+            // --- कोर लॉजिक यहाँ है ---
+
+            // 1. क्या यूजरनेम डेटाबेस में मौजूद है?
+            const existingUser = userDatabase.find(user => user.username.toLowerCase() === usernameInput.toLowerCase());
+
+            if (existingUser) {
+                // --- यह LOGIN का लॉजिक है ---
+                // यूजरनेम मौजूद है, अब पासवर्ड चेक करो
+                if (existingUser.password === passwordInput) {
+                    // पासवर्ड सही है
+                    showMessage(`Welcome back, ${existingUser.username}! Login successful.`, 'success');
+                    // असली वेबसाइट में, यहाँ से यूजर को स्टूडेंट ज़ोन पेज पर भेजा जाएगा
+                    // window.location.href = '/student-zone.html';
+                } else {
+                    // पासवर्ड गलत है
+                    showMessage('Incorrect password. Please try again.', 'error');
+                }
+
+            } else {
+                // --- यह SIGNUP का लॉजिक है ---
+                // यूजरनेम मौजूद नहीं है, इसलिए नया अकाउंट बनाओ
+                const newUser = {
+                    username: usernameInput,
+                    password: passwordInput
+                };
+                
+                // नए यूजर को हमारे नकली डेटाबेस में जोड़ो
+                userDatabase.push(newUser);
+                
+                showMessage(`Account created for ${newUser.username}! Welcome.`, 'success');
+                console.log('Updated Database:', userDatabase); // आप कंसोल में देख सकते हैं कि नया यूजर जुड़ गया है
+            }
+        });
+
+        // स्क्रीन पर मैसेज दिखाने के लिए हेल्पर फंक्शन
+        function showMessage(msg, type) {
+            messageDiv.textContent = msg;
+            messageDiv.className = type; // success या error क्लास लगाना
+        }
+    </script>
+
+</body>
+</html>

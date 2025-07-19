@@ -22,15 +22,20 @@ app.post('/signup', (req, res) => {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const existingUser = users.find(user => user.username.toLowerCase() === username.toLowerCase());
-    if (existingUser) {
-        return res.status(400).json({ message: 'Username already exists!' });
-    }
+    try {
+        const existingUser = users.find(user => user.username.toLowerCase() === username.toLowerCase());
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists!' });
+        }
 
-    const newUser = { username, password, role };
-    users.push(newUser);
-    console.log('Users:', users);
-    res.status(201).json({ message: 'Account created successfully! Please login.' });
+        const newUser = { username, password, role };
+        users.push(newUser);
+        console.log('Users:', users);
+        res.status(201).json({ message: 'Account created successfully! Please login.' });
+    } catch (error) {
+        console.error("Signup error:", error);
+        res.status(500).json({ message: 'Internal server error during signup' });
+    }
 });
 
 // --- User Login ---

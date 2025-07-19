@@ -41,7 +41,7 @@ body {
 
         /* Student Zone (Main App) Styles */
         #student-zone-app {
-            display: none; /* Initially hidden */
+            /* display: none; Initially hidden */
         }
         .zone-header {
             display: flex;

@@ -1,96 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Campus Secrets</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="home.css"> 
+    <title>Campus Secrets</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="home.css">
 </head>
 <body>
-  <div id="title_logo"><h1>Campus Secrets</h1></div>
-    <nav><ul>
-        <li><a href="#">Home</a></li><li><a href="#">Privacy</a></li><li><a href="#">Contact</a></li><li><a href="#">About</a></li>
-    </ul></nav>
-    
-    <div id="std" class="zone-container">
-        <h2>Students-Zone</h2>
-        <input type="text" id="stdusername" placeholder="Username">
-        <input type="password" id="stdpassword" placeholder="Password">
-        <button type="button" id="stdsignuplogin">SignUp / Login</button>
-        <div class="message" id="std-message"></div>
-    </div>
+  <div id="title_logo"><h1>Campus Secrets</h1></div>
+    <nav><ul>
+        <li><a href="#">Home</a></li><li><a href="#">Privacy</a></li><li><a href="#">Contact</a></li><li><a href="#">About</a></li>
+    </ul></nav>
 
-    <div id="fac" class="zone-container">
-        <h2>Faculty-Zone</h2>
-        <input type="text" id="facusername" placeholder="Username">
-        <input type="password" id="facpassword" placeholder="Password">
-        <button type="button" id="facsignuplogin">SignUp / Login</button>
-        <div class="message" id="fac-message"></div>
-    </div>
+    <div id="std" class="zone-container">
+        <h2>Students-Zone</h2>
+        <input type="text" id="stdusername" placeholder="Username">
+        <div class="message" id="std-message"></div>
+        <button type="button" id="stdsignuplogin">Enter</button>
+    </div>
 
-    <div id="stdfac" class="zone-container">
-        <h2>Student & Faculty-Zone</h2>
-        <p><b>Login only.</b></p>
-        <input type="text" id="stdfacusername" placeholder="Username">
-        <input type="password" id="stdfacpassword" placeholder="Password">
-        <button type="button" id="stdfaclogin">Login</button>
-        <div class="message" id="stdfac-message"></div>
-    </div>
-    
-    <script>
-        const API_URL = 'http://localhost:3000';
+    <div id="fac" class="zone-container">
+        <h2>Faculty-Zone</h2>
+        <input type="text" id="facusername" placeholder="Username">
+        <input type="password" id="facpassword" placeholder="Password">
+        <button type="button" id="facsignuplogin">SignUp / Login</button>
+        <div class="message" id="fac-message"></div>
+    </div>
 
-        // --- Student Zone ---
-        const stdUser = document.getElementById('stdusername');
-        const stdPass = document.getElementById('stdpassword');
-        const stdBtn = document.getElementById('stdsignuplogin');
-        const stdMsg = document.getElementById('std-message');
+    <div id="stdfac" class="zone-container">
+        <h2>Student & Faculty-Zone</h2>
+        <p><b>Login only.</b></p>
+        <input type="text" id="stdfacusername" placeholder="Username">
+        <input type="password" id="stdfacpassword" placeholder="Password">
+        <button type="button" id="stdfaclogin">Login</button>
+        <div class="message" id="stdfac-message"></div>
+    </div>
 
-        stdBtn.addEventListener('click', async () => {
-    const username = stdUser.value.trim();
-    const password = stdPass.value.trim();
-    stdMsg.textContent = '';
+    <script>
+        const API_URL = 'http://localhost:3000';
 
-    // Try to log in first
-    try {
-        const loginRes = await fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const loginData = await loginRes.json();
+        // --- Student Zone ---
+        const stdUser = document.getElementById('stdusername');
+        const stdBtn = document.getElementById('stdsignuplogin');
+        const stdMsg = document.getElementById('std-message');
 
-        if (loginRes.ok && loginData.role === 'student') {
-            alert(`Student login successful! Welcome ${username}`);
-            // **नया कोड:** यूजरनेम को ब्राउज़र की मेमोरी में सेव करें
-            localStorage.setItem('loggedInUser', username);
+        stdBtn.addEventListener('click', async () => {
+    let username = localStorage.getItem('randomUsername');
 
-            // अब स्टूडेंट पेज पर भेजें
-            window.location.href = 'studentszone.html';
-            return;
-        }
+    if (!username) {
+        // पहली बार लॉगिन/साइनअप करने वाला यूजर, रैंडम यूजरनेम जनरेट करें
+        username = generateRandomUsername(); // आपको यह फंक्शन बनाना होगा
+        localStorage.setItem('randomUsername', username);
+    }
 
-        // If login failed, try to sign up
-        if (loginRes.status === 404) { // Account not found
-            const signupRes = await fetch(`${API_URL}/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password, role: 'student' })
-            });
-            const signupData = await signupRes.json();
-            stdMsg.textContent = signupData.message;
-            stdMsg.className = signupRes.ok ? 'message success' : 'message error';
-        } else {
-            stdMsg.textContent = loginData.message;
-            stdMsg.className = 'message error';
-        }
+    stdMsg.textContent = '';
 
-    } catch(e) { console.error(e); stdMsg.textContent = "Server error!"; stdMsg.className = 'message error';}
+    try {
+        const loginRes = await fetch(`${API_URL}/login`, { // अब सिर्फ यूजरनेम भेजें
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username }) // पासवर्ड अब नहीं भेज रहे
+        });
+
+        const loginData = await loginRes.json();
+
+        if (loginRes.ok && loginData.role === 'student') {
+            alert(`Student login successful! Welcome ${username}`);
+            localStorage.setItem('loggedInUser', username);
+            window.location.href = 'studentszone.html';
+            return;
+        } else if (loginRes.status === 404) { // यूजर नहीं मिला, तो साइनअप करें
+            const signupRes = await fetch(`${API_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, role: 'student' }) // पासवर्ड अब नहीं भेज रहे
+            });
+
+            const signupData = await signupRes.json();
+            stdMsg.textContent = signupData.message;
+            stdMsg.className = signupRes.ok ? 'message success' : 'message error';
+            if (signupRes.ok) {
+                localStorage.setItem('loggedInUser', username);
+                window.location.href = 'studentszone.html';
+            }
+        } else {
+            stdMsg.textContent = loginData.message;
+            stdMsg.className = 'message error';
+        }
+
+    } catch (e) {
+        console.error(e);
+        stdMsg.textContent = "Server error!";
+        stdMsg.className = 'message error';
+    }
 });
-        
-        // --- Faculty Zone --- (You can add similar logic here)
-        // --- Combined Zone --- (You can add similar logic here for login only)
 
-    </script>
+function generateRandomUsername() {
+    const prefix = 'student';
+    const randomNumber = Math.random().toString(36).substring(2, 8); // 6 कैरेक्टर का रैंडम स्ट्रिंग
+    return `${prefix}-${randomNumber}`;
+}
+    </script>
 </body>
 </html>

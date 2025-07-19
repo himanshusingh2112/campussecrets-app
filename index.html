@@ -51,10 +51,10 @@
     </div>
     
     <script>
-        // --- यह हमारा नकली डेटाबेस है, जो सभी यूजर्स को स्टोर करेगा ---
+        // --- This is our mock database, which will store all users ---
         const userDatabase = [];
 
-        // --- सभी जरूरी HTML एलिमेंट्स को सेलेक्ट करना ---
+        // --- Selecting all necessary HTML elements ---
         // Student Zone Elements
         const stdUser = document.getElementById('stdusername');
         const stdPass = document.getElementById('stdpassword');
@@ -74,7 +74,7 @@
         const stdfacMsg = document.getElementById('stdfac-message');
 
 
-        // --- स्टूडेंट ज़ोन के बटन का लॉजिक ---
+        // --- Logic for the Student Zone button ---
         stdBtn.addEventListener('click', () => {
             const username = stdUser.value.trim();
             const password = stdPass.value.trim();
@@ -88,19 +88,19 @@
 
             if (existingUser) { // Login Logic
                 if (existingUser.password === password && existingUser.role === 'student') {
-                    // लॉगिन सफल! अब स्टूडेंट पेज पर भेजें।
-                    window.location.href = 'studentszone.html';
+                    // **THIS IS THE FIX:** Redirect to the student page instead of showing a message.
+                    window.location.href = 'studentszone.html'; 
                 } else {
                     stdMsg.textContent = 'Incorrect details or not a student account.';
                 }
             } else { // Signup Logic
                 userDatabase.push({ username, password, role: 'student' });
                 stdMsg.textContent = 'Student account created successfully! Please login now.';
-                console.log(userDatabase);
+                console.log(userDatabase); // Check the database in console
             }
         });
 
-        // --- फैकल्टी ज़ोन के बटन का लॉजिक ---
+        // --- Logic for the Faculty Zone button ---
         facBtn.addEventListener('click', () => {
             const username = facUser.value.trim();
             const password = facPass.value.trim();
@@ -114,7 +114,7 @@
 
             if (existingUser) { // Login Logic
                 if (existingUser.password === password && existingUser.role === 'faculty') {
-                    // लॉगिन सफल! अब फैकल्टी पेज पर भेजें।
+                    // Redirect to the faculty page.
                     window.location.href = 'facultyzone.html';
                 } else {
                     facMsg.textContent = 'Incorrect details or not a faculty account.';
@@ -126,7 +126,7 @@
             }
         });
         
-        // --- कंबाइंड ज़ोन के बटन का लॉजिक (सिर्फ लॉगिन) ---
+        // --- Logic for the Combined Zone button (Login only) ---
         stdfacBtn.addEventListener('click', () => {
             const username = stdfacUser.value.trim();
             const password = stdfacPass.value.trim();
@@ -140,7 +140,7 @@
 
             if (existingUser) {
                 if (existingUser.password === password) {
-                    // लॉगिन सफल! अब कंबाइंड पेज पर भेजें।
+                    // Redirect to the combined page.
                     window.location.href = 'both-page.html';
                 } else {
                     stdfacMsg.textContent = 'Incorrect password.';

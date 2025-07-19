@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeApp(username) {
     // वेलकम मैसेज दिखाओ
     welcomeMessage.textContent = `Hello, ${username}`;
-
+appScreen.style.display = 'block';
     // लोड करें पहले से मौजूद पोस्ट्स
     loadPostsFromStorage();
 

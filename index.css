@@ -1,78 +1,14 @@
-   /* CSS कोड को <style> टैग के अंदर रखा गया है */
-        body {
-            font-family: Arial, sans-serif;
+     body { font-family: Arial, sans-serif; text-align: center; background-color: #f0f2f5; }
+        nav { background-color: #333; padding: 10px; }
+        nav ul { list-style-type: none; margin: 0; padding: 0; display: flex; justify-content: center; }
+        nav li { margin: 0 15px; }
+        nav a { color: white; text-decoration: none; }
+        .zone-container {
+            background-color: white; width: 90%; max-width: 400px;
+            margin: 20px auto; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        nav {
-            background-color: peru;
-            text-align: center;
-        }
-        ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-        }
-        li {
-            margin: 0 15px;
-        }
-        li a {
-            display: block;
-            padding: 10px;
-            color: white;
-            text-decoration: none;
-            text-align: center;
-        }
-        #title_logo {
-            text-align: center;
-            padding: 20px 0;
-        }
-        
-        /* तीनों फॉर्म के लिए कॉमन स्टाइल */
-        #std, #fac, #stdfac {
-            background-color: rgb(149, 216, 238);
-            width: 90%;
-            max-width: 400px;
-            margin: 10px auto;
-            padding: 20px;
-            border: 2px solid black;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        /* तीनों हेडिंग के लिए कॉमन स्टाइल */
-        .stdzone, .faczone, .stdfaczone {
-            font-size: x-large;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        /* तीनों फॉर्म के इनपुट और बटन के लिए कॉमन स्टाइल */
-        #std input, #std button,
-        #fac input, #fac button,
-        #stdfac input, #stdfac button {
-            width: 90%;
-            padding: 12px;
-            margin-bottom: 15px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        #std button, #fac button, #stdfac button {
-            width: 60%;
-            background-color: #1c22a4;
-            color: white;
-            cursor: pointer;
-            border: none;
-        }
-        
-        /* मैसेज दिखाने के लिए स्टाइल */
-        .message {
-            margin-top: 10px;
-            font-weight: bold;
-        }
+        input { width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 60%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .message { margin-top: 10px; font-weight: bold; }
         .success { color: green; }
         .error { color: red; }

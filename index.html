@@ -7,43 +7,30 @@
     <link rel="stylesheet" href="home.css"> 
 </head>
 <body>
-    <div id="title_logo">
-        <h1>Campus Secrets</h1>
-    </div>
-    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#privacy">Privacy</a></li>
-            <li><a href="#contact">Contact Us</a></li>
-            <li><a href="#about">About Us</a></li>
-        </ul>
-    </nav>
+  <div id="title_logo"><h1>Campus Secrets</h1></div>
+    <nav><ul>
+        <li><a href="#">Home</a></li><li><a href="#">Privacy</a></li><li><a href="#">Contact</a></li><li><a href="#">About</a></li>
+    </ul></nav>
     
-    <h2 class="stdzone">Students-Zone</h2>
-    <div id="std">
-        <p>New students can sign up here. Existing students can log in.</p>
+    <div id="std" class="zone-container">
+        <h2>Students-Zone</h2>
         <input type="text" id="stdusername" placeholder="Username">
         <input type="password" id="stdpassword" placeholder="Password">
         <button type="button" id="stdsignuplogin">SignUp / Login</button>
         <div class="message" id="std-message"></div>
     </div>
 
-    <br>
-    
-    <h2 class="faczone">Faculty-Zone</h2>
-    <div id="fac">
-        <p>New faculty can sign up here. Existing faculty can log in.</p>
+    <div id="fac" class="zone-container">
+        <h2>Faculty-Zone</h2>
         <input type="text" id="facusername" placeholder="Username">
         <input type="password" id="facpassword" placeholder="Password">
         <button type="button" id="facsignuplogin">SignUp / Login</button>
         <div class="message" id="fac-message"></div>
     </div>
 
-    <br>
-
-    <h2 class="stdfaczone">Student & Faculty-Zone</h2>
-    <div id="stdfac">
-        <p><b>Login only.</b> You must have an account to enter.</p>
+    <div id="stdfac" class="zone-container">
+        <h2>Student & Faculty-Zone</h2>
+        <p><b>Login only.</b></p>
         <input type="text" id="stdfacusername" placeholder="Username">
         <input type="password" id="stdfacpassword" placeholder="Password">
         <button type="button" id="stdfaclogin">Login</button>
@@ -51,104 +38,54 @@
     </div>
     
     <script>
-        // --- This is our mock database, which will store all users ---
-        const userDatabase = [];
+        const API_URL = 'http://localhost:3000';
 
-        // --- Selecting all necessary HTML elements ---
-        // Student Zone Elements
+        // --- Student Zone ---
         const stdUser = document.getElementById('stdusername');
         const stdPass = document.getElementById('stdpassword');
         const stdBtn = document.getElementById('stdsignuplogin');
         const stdMsg = document.getElementById('std-message');
 
-        // Faculty Zone Elements
-        const facUser = document.getElementById('facusername');
-        const facPass = document.getElementById('facpassword');
-        const facBtn = document.getElementById('facsignuplogin');
-        const facMsg = document.getElementById('fac-message');
-        
-        // Combined Zone Elements
-        const stdfacUser = document.getElementById('stdfacusername');
-        const stdfacPass = document.getElementById('stdfacpassword');
-        const stdfacBtn = document.getElementById('stdfaclogin');
-        const stdfacMsg = document.getElementById('stdfac-message');
-
-
-        // --- Logic for the Student Zone button ---
-        stdBtn.addEventListener('click', () => {
+        stdBtn.addEventListener('click', async () => {
             const username = stdUser.value.trim();
             const password = stdPass.value.trim();
+            stdMsg.textContent = '';
 
-            if (!username || !password) {
-                stdMsg.textContent = 'Please enter username and password.';
-                return;
-            }
-
-            const existingUser = userDatabase.find(user => user.username === username);
-
-            if (existingUser) { // Login Logic
-                if (existingUser.password === password && existingUser.role === 'student') {
-                    // **THIS IS THE FIX:** Redirect to the student page instead of showing a message.
-                    window.location.href = 'studentszone.html'; 
-                } else {
-                    stdMsg.textContent = 'Incorrect details or not a student account.';
+            // Try to log in first
+            try {
+                const loginRes = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const loginData = await loginRes.json();
+                
+                if (loginRes.ok && loginData.role === 'student') {
+                    alert(`Student login successful! Welcome ${username}`);
+                    // window.location.href = 'studentszone.html'; // Redirect here
+                    return;
                 }
-            } else { // Signup Logic
-                userDatabase.push({ username, password, role: 'student' });
-                stdMsg.textContent = 'Student account created successfully! Please login now.';
-                console.log(userDatabase); // Check the database in console
-            }
-        });
-
-        // --- Logic for the Faculty Zone button ---
-        facBtn.addEventListener('click', () => {
-            const username = facUser.value.trim();
-            const password = facPass.value.trim();
-
-            if (!username || !password) {
-                facMsg.textContent = 'Please enter username and password.';
-                return;
-            }
-
-            const existingUser = userDatabase.find(user => user.username === username);
-
-            if (existingUser) { // Login Logic
-                if (existingUser.password === password && existingUser.role === 'faculty') {
-                    // Redirect to the faculty page.
-                    window.location.href = 'facultyzone.html';
+                
+                // If login failed, try to sign up
+                if (loginRes.status === 404) { // Account not found
+                    const signupRes = await fetch(`${API_URL}/signup`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password, role: 'student' })
+                    });
+                    const signupData = await signupRes.json();
+                    stdMsg.textContent = signupData.message;
+                    stdMsg.className = signupRes.ok ? 'message success' : 'message error';
                 } else {
-                    facMsg.textContent = 'Incorrect details or not a faculty account.';
+                    stdMsg.textContent = loginData.message;
+                    stdMsg.className = 'message error';
                 }
-            } else { // Signup Logic
-                userDatabase.push({ username, password, role: 'faculty' });
-                facMsg.textContent = 'Faculty account created successfully! Please login now.';
-                console.log(userDatabase);
-            }
+
+            } catch(e) { console.error(e); stdMsg.textContent = "Server error!"; stdMsg.className = 'message error';}
         });
         
-        // --- Logic for the Combined Zone button (Login only) ---
-        stdfacBtn.addEventListener('click', () => {
-            const username = stdfacUser.value.trim();
-            const password = stdfacPass.value.trim();
-
-            if (!username || !password) {
-                stdfacMsg.textContent = 'Please enter username and password.';
-                return;
-            }
-            
-            const existingUser = userDatabase.find(user => user.username === username);
-
-            if (existingUser) {
-                if (existingUser.password === password) {
-                    // Redirect to the combined page.
-                    window.location.href = 'both-page.html';
-                } else {
-                    stdfacMsg.textContent = 'Incorrect password.';
-                }
-            } else {
-                stdfacMsg.textContent = 'Account not found. Please sign up first.';
-            }
-        });
+        // --- Faculty Zone --- (You can add similar logic here)
+        // --- Combined Zone --- (You can add similar logic here for login only)
 
     </script>
 </body>

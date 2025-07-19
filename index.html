@@ -4,8 +4,7 @@
     <title>Campus Secrets</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="home.css">
-  
+    <link rel="stylesheet" href="home.css"> 
 </head>
 <body>
     <div id="title_logo">
@@ -82,7 +81,6 @@
 
             if (!username || !password) {
                 stdMsg.textContent = 'Please enter username and password.';
-                stdMsg.className = 'message error';
                 return;
             }
 
@@ -90,17 +88,15 @@
 
             if (existingUser) { // Login Logic
                 if (existingUser.password === password && existingUser.role === 'student') {
-                    stdMsg.textContent = 'Student login successful!';
-                    stdMsg.className = 'message success';
+                    // लॉगिन सफल! अब स्टूडेंट पेज पर भेजें।
+                    window.location.href = 'studentszone.html';
                 } else {
                     stdMsg.textContent = 'Incorrect details or not a student account.';
-                    stdMsg.className = 'message error';
                 }
             } else { // Signup Logic
                 userDatabase.push({ username, password, role: 'student' });
-                stdMsg.textContent = 'Student account created successfully!';
-                stdMsg.className = 'message success';
-                console.log(userDatabase); // Check the database in console
+                stdMsg.textContent = 'Student account created successfully! Please login now.';
+                console.log(userDatabase);
             }
         });
 
@@ -111,7 +107,6 @@
 
             if (!username || !password) {
                 facMsg.textContent = 'Please enter username and password.';
-                facMsg.className = 'message error';
                 return;
             }
 
@@ -119,16 +114,14 @@
 
             if (existingUser) { // Login Logic
                 if (existingUser.password === password && existingUser.role === 'faculty') {
-                    facMsg.textContent = 'Faculty login successful!';
-                    facMsg.className = 'message success';
+                    // लॉगिन सफल! अब फैकल्टी पेज पर भेजें।
+                    window.location.href = 'facultyzone.html';
                 } else {
                     facMsg.textContent = 'Incorrect details or not a faculty account.';
-                    facMsg.className = 'message error';
                 }
             } else { // Signup Logic
                 userDatabase.push({ username, password, role: 'faculty' });
-                facMsg.textContent = 'Faculty account created successfully!';
-                facMsg.className = 'message success';
+                facMsg.textContent = 'Faculty account created successfully! Please login now.';
                 console.log(userDatabase);
             }
         });
@@ -140,26 +133,20 @@
 
             if (!username || !password) {
                 stdfacMsg.textContent = 'Please enter username and password.';
-                stdfacMsg.className = 'message error';
                 return;
             }
             
-            // यहाँ कोई साइन-अप लॉजिक नहीं है
             const existingUser = userDatabase.find(user => user.username === username);
 
             if (existingUser) {
-                // यूजर मौजूद है, अब पासवर्ड चेक करो
                 if (existingUser.password === password) {
-                    stdfacMsg.textContent = `Login successful! Welcome, ${username}.`;
-                    stdfacMsg.className = 'message success';
+                    // लॉगिन सफल! अब कंबाइंड पेज पर भेजें।
+                    window.location.href = 'both-page.html';
                 } else {
                     stdfacMsg.textContent = 'Incorrect password.';
-                    stdfacMsg.className = 'message error';
                 }
             } else {
-                // यूजर मौजूद नहीं है, इसलिए एरर दिखाओ
                 stdfacMsg.textContent = 'Account not found. Please sign up first.';
-                stdfacMsg.className = 'message error';
             }
         });
 

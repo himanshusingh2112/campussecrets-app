@@ -32,17 +32,17 @@
 
     <script>// studentszone.js
 
+// studentszone.js
+
 // --- Global Variables ---
 let loggedInUser = null; // To store the current user's info (will be populated from localStorage)
 const ONE_WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000; // 1 week in milliseconds
+const API_URL = 'http://localhost:3000'; // अपने सर्वर का URL
 
 // --- DOM Elements ---
-const loginScreen = document.getElementById('login-screen'); // Assuming this is present if login was not successful initially
 const appScreen = document.getElementById('student-zone-app');
-const loginBtn = document.getElementById('login-btn'); // Assuming this is for a direct login on this page (if you decide to add one later)
-const usernameInput = document.getElementById('username-input'); // Assuming this is for a direct login on this page (if you decide to add one later)
 const postFeed = document.getElementById('post-feed');
-const emptyFeedMessage = document.getElementById('empty-feed-message'); // Make sure this element exists in your studentszone.html
+const emptyFeedMessage = document.getElementById('empty-feed-message'); // Ensure this exists in your HTML
 const openModalBtn = document.getElementById('open-modal-btn');
 const closeModalBtn = document.getElementById('close-modal-btn');
 const postModal = document.getElementById('post-modal');
@@ -85,22 +85,16 @@ function renderPosts(posts) {
     }
 }
 
-function loadPostsFromStorage() {
-    // Get posts from browser's local storage
-    const storedPosts = JSON.parse(localStorage.getItem('studentPosts') || '[]');
-
-    const now = Date.now();
-
-    // Filter out posts that are older than 1 week
-    const validPosts = storedPosts.filter(post => {
-        return (now - post.createdAt) < ONE_WEEK_IN_MS;
-    });
-
-    // Update the local storage with only valid (non-expired) posts
-    localStorage.setItem('studentPosts', JSON.stringify(validPosts));
-
-    // Display the valid posts on the screen
-    renderPosts(validPosts);
+function loadPostsFromServer() {
+    fetch(`${API_URL}/api/posts`)
+        .then(response => response.json())
+        .then(posts => {
+            renderPosts(posts);
+        })
+        .catch(error => {
+            console.error("Error fetching posts:", error);
+            alert("Could not load posts.");
+        });
 }
 
 // पेज लोड होते ही यह फंक्शन चलेगा
@@ -123,9 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeApp(username) {
     // वेलकम मैसेज दिखाओ
     welcomeMessage.textContent = `Hello, ${username}`;
-appScreen.style.display = 'block';
-    // लोड करें पहले से मौजूद पोस्ट्स
-    loadPostsFromStorage();
+    appScreen.style.display = 'block'; // Ensure the app is visible
+
+    // लोड करें सर्वर से पोस्ट्स
+    loadPostsFromServer();
 
     // Modal खोलने और बंद करने का लॉजिक
     openModalBtn.addEventListener('click', () => postModal.classList.add('active'));
@@ -136,30 +131,56 @@ appScreen.style.display = 'block';
         event.preventDefault();
         const postText = event.target['post-text'].value;
         const postImageFile = event.target['post-image'].files[0];
+        const reader = new FileReader();
 
-        // Create a post object with the LOGGED IN USER's name and a timestamp
-        const newPostData = {
-            username: loggedInUser.username, // Dynamic username!
-            text: postText,
-            image: postImageFile ? URL.createObjectURL(postImageFile) : null,
-            createdAt: Date.now() // Timestamp for expiry
+        reader.onloadend = () => {
+            const imageBase64 = reader.result;
+            // सर्वर पर नया पोस्ट भेजें
+            fetch(`${API_URL}/api/create-post`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: loggedInUser.username, text: postText, image: imageBase64 }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Post created:", data);
+                // नया पोस्ट बनाने के बाद फिर से सभी पोस्ट लोड करें
+                loadPostsFromServer();
+                postModal.classList.remove('active');
+                postForm.reset();
+            })
+            .catch(error => {
+                console.error("Error creating post:", error);
+                alert("Could not create post.");
+            });
         };
 
-        // Add to the top of the feed visually
-        const postElement = createPostElement(newPostData);
-        postFeed.prepend(postElement);
-        const emptyFeedMessageElement = document.getElementById('empty-feed-message');
-        if (emptyFeedMessageElement) {
-            emptyFeedMessageElement.remove();
+        if (postImageFile) {
+            reader.readAsDataURL(postImageFile);
+        } else {
+            // बिना इमेज के पोस्ट भेजें
+            fetch(`${API_URL}/api/create-post`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: loggedInUser.username, text: postText, image: null }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Post created:", data);
+                // नया पोस्ट बनाने के बाद फिर से सभी पोस्ट लोड करें
+                loadPostsFromServer();
+                postModal.classList.remove('active');
+                postForm.reset();
+            })
+            .catch(error => {
+                console.error("Error creating post:", error);
+                alert("Could not create post.");
+            });
         }
-
-        // Save the new post to our browser "database"
-        const allPosts = JSON.parse(localStorage.getItem('studentPosts') || '[]');
-        allPosts.unshift(newPostData); // Add to the beginning
-        localStorage.setItem('studentPosts', JSON.stringify(allPosts));
-
-        postModal.classList.remove('active');
-        postForm.reset();
     });
 }
 </script>

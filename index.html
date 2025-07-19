@@ -47,42 +47,46 @@
         const stdMsg = document.getElementById('std-message');
 
         stdBtn.addEventListener('click', async () => {
-            const username = stdUser.value.trim();
-            const password = stdPass.value.trim();
-            stdMsg.textContent = '';
+    const username = stdUser.value.trim();
+    const password = stdPass.value.trim();
+    stdMsg.textContent = '';
 
-            // Try to log in first
-            try {
-                const loginRes = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const loginData = await loginRes.json();
-                
-                if (loginRes.ok && loginData.role === 'student') {
-                    alert(`Student login successful! Welcome ${username}`);
-                    // window.location.href = 'studentszone.html'; // Redirect here
-                    return;
-                }
-                
-                // If login failed, try to sign up
-                if (loginRes.status === 404) { // Account not found
-                    const signupRes = await fetch(`${API_URL}/signup`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password, role: 'student' })
-                    });
-                    const signupData = await signupRes.json();
-                    stdMsg.textContent = signupData.message;
-                    stdMsg.className = signupRes.ok ? 'message success' : 'message error';
-                } else {
-                    stdMsg.textContent = loginData.message;
-                    stdMsg.className = 'message error';
-                }
-
-            } catch(e) { console.error(e); stdMsg.textContent = "Server error!"; stdMsg.className = 'message error';}
+    // Try to log in first
+    try {
+        const loginRes = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
         });
+        const loginData = await loginRes.json();
+
+        if (loginRes.ok && loginData.role === 'student') {
+            alert(`Student login successful! Welcome ${username}`);
+            // **नया कोड:** यूजरनेम को ब्राउज़र की मेमोरी में सेव करें
+            localStorage.setItem('loggedInUser', username);
+
+            // अब स्टूडेंट पेज पर भेजें
+            window.location.href = 'studentszone.html';
+            return;
+        }
+
+        // If login failed, try to sign up
+        if (loginRes.status === 404) { // Account not found
+            const signupRes = await fetch(`${API_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, role: 'student' })
+            });
+            const signupData = await signupRes.json();
+            stdMsg.textContent = signupData.message;
+            stdMsg.className = signupRes.ok ? 'message success' : 'message error';
+        } else {
+            stdMsg.textContent = loginData.message;
+            stdMsg.className = 'message error';
+        }
+
+    } catch(e) { console.error(e); stdMsg.textContent = "Server error!"; stdMsg.className = 'message error';}
+});
         
         // --- Faculty Zone --- (You can add similar logic here)
         // --- Combined Zone --- (You can add similar logic here for login only)

@@ -93,7 +93,7 @@ body {
         }
         .modal-overlay.active { display: flex; }
         .modal-content {
-            background-color: var(--card-bg); padding: 25px;
+            background-color: skyblue; padding: 25px;
             border-radius: 15px; width: 90%; max-width: 500px;
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }

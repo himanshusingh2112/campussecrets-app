@@ -52,7 +52,7 @@ body {
             margin-bottom: 20px;
         }
         .create-post-btn {
-            background-color: var(--accent-color);
+            background-color: blue;
             color: #000;
             border: none;
             padding: 10px 20px;
@@ -71,7 +71,7 @@ body {
             color: var(--text-secondary);
         }
         .post {
-            background-color: var(--card-bg);
+            background-color: skyblue;
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 15px 20px;

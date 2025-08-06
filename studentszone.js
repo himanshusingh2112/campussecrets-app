@@ -10,10 +10,10 @@ import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstat
 // 1. FIREBASE CONFIGURATION
 // ======================================================
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY", // **यहाँ अपनी असली KEY डालें**
+    apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE", // **यहाँ आपकी असली KEY होनी चाहिए**
     authDomain: "campussecrets-cc4b8.firebaseapp.com",
     projectId: "campussecrets-cc4b8",
-    storageBucket: "campussecrets-cc4b8.appspot.com",
+    storageBucket: "campussecrets-cc4b8.appspot.com", // **सुनिश्चित करें कि यह सही है**
     messagingSenderId: "375125385371",
     appId: "1:375125385371:web:c6978d28896e25c86ce63e"
 };
@@ -21,7 +21,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+const storage = getStorage(app); // Firebase Storage को शुरू करें
 
 // ======================================================
 // 2. AUTHENTICATION CHECK
@@ -29,13 +29,15 @@ const storage = getStorage(app);
 onAuthStateChanged(auth, (user) => {
     if (user) {
         const username = user.email.split('@')[0];
-        initializeApp(username);
+        // फंक्शन का नाम बदला गया
+        runStudentZoneApp(username);
     } else {
         window.location.href = 'index.html';
     }
 });
 
-function initializeApp(username) {
+// फंक्शन का नाम बदला गया
+function runStudentZoneApp(username) {
     const welcomeMessage = document.getElementById('welcome-message');
     const logoutBtn = document.getElementById('logout-btn');
     const openModalBtn = document.getElementById('open-modal-btn');
@@ -48,16 +50,13 @@ function initializeApp(username) {
 
     welcomeMessage.textContent = `Hello, ${username}`;
 
-    // Logout logic
     logoutBtn.addEventListener('click', () => {
         signOut(auth).catch(error => console.error('Sign out error', error));
     });
 
-    // Modal logic
     openModalBtn.addEventListener('click', () => postModal.classList.add('active'));
     closeModalBtn.addEventListener('click', () => postModal.classList.remove('active'));
 
-    // Create new post logic
     postForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const postText = postTextInput.value.trim();
@@ -100,7 +99,6 @@ function initializeApp(username) {
         }
     }
 
-    // Display all posts in real-time
     const postsQuery = query(collection(db, "student_posts"), orderBy("createdAt", "desc"));
     
     onSnapshot(postsQuery, (snapshot) => {

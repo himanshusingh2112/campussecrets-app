@@ -5,20 +5,19 @@
         margin: 0; 
         padding: 20px;
     }
-    #title_logo {
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Center horizontally */
-  padding: 20px;
-  background-color: #f5f5f5; /* Light background */
+ #title_logo {
+  text-align: center;
+  padding: 20px 0;
+  background-color: #ffffff;
 }
 
 #title_logo img {
-  width: 120px; /* Adjust size */
+  width: 120px;
   height: auto;
-  border-radius: 8px; /* Optional: rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
+
     nav { 
         background-color: #333; 
         padding: 10px; 

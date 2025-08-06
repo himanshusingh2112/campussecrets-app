@@ -4,22 +4,21 @@
     <title>Students Zone</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="studentszone.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="studentszone.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
-    <header class="zone-header">
-    <h1 id="welcome-message"></h1>
-    <div>
-        <button class="create-post-btn" id="open-modal-btn"><i class="fas fa-plus"></i> Create Post</button>
-        <button class="logout-btn" id="logout-btn" style="background-color: #e4e6eb; color: #000; margin-left: 10px;">Logout</button>
-    </div>
-</header>
+<div class="container">
     <div id="student-zone-app">
         <header class="zone-header">
-            <h1 id="welcome-message"></h1>
-            <button class="create-post-btn" id="open-modal-btn"><i class="fas fa-plus"></i> Create Post</button>
-        <br> <h2>|| This platform is antonyms so you are create a post without any show our indentiy. ||</h2>
-        
+            <div class="welcome-text">
+                <h1 id="welcome-message"></h1>
+                <h2>This platform is anonymous. Post without revealing your identity.</h2>
+            </div>
+            <div>
+                <button class="create-post-btn" id="open-modal-btn"><i class="fas fa-plus"></i> Create Post</button>
+                <button class="logout-btn" id="logout-btn">Logout</button>
+            </div>
         </header>
         <main class="feed" id="post-feed">
             </main>
@@ -38,160 +37,9 @@
             </form>
         </div>
     </div>
+</div>
 
-    <script>// studentszone.js
+<script type="module" src="studentszone.js"></script>
 
-// studentszone.js
-
-// --- Global Variables ---
-let loggedInUser = null; // To store the current user's info (will be populated from localStorage)
-const ONE_WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000; // 1 week in milliseconds
-const API_URL = 'http://localhost:3000'; // अपने सर्वर का URL
-
-// --- DOM Elements ---
-const appScreen = document.getElementById('student-zone-app');
-const postFeed = document.getElementById('post-feed');
-const emptyFeedMessage = document.getElementById('empty-feed-message'); // Ensure this exists in your HTML
-const openModalBtn = document.getElementById('open-modal-btn');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const postModal = document.getElementById('post-modal');
-const postForm = document.getElementById('create-post-form');
-const welcomeMessage = document.getElementById('welcome-message');
-
-// Helper function to create the HTML for a post
-function createPostElement(postData) {
-    const article = document.createElement('article');
-    article.className = 'post';
-
-    const timeAgo = Math.round((Date.now() - postData.createdAt) / 60000); // in minutes
-    const imageHTML = postData.image ? `<img src="${postData.image}" class="post-image">` : '';
-
-    article.innerHTML = `
-        <div class="post-header">
-            <span class="username">${postData.username}</span>
-            <span class="post-time" style="margin-left:auto; font-size:12px; color: #888;">${timeAgo} mins ago</span>
-        </div>
-        <div class="post-body">
-            <p>${postData.text}</p>
-            ${imageHTML}
-        </div>
-    `;
-    return article;
-}
-
-function renderPosts(posts) {
-    postFeed.innerHTML = ''; // Clear the feed first
-    if (posts.length === 0) {
-        const emptyMessage = document.createElement('p');
-        emptyMessage.id = 'empty-feed-message';
-        emptyMessage.textContent = 'No posts yet. Create your first post!';
-        postFeed.appendChild(emptyMessage);
-    } else {
-        posts.forEach(post => {
-            const postElement = createPostElement(post);
-            postFeed.appendChild(postElement);
-        });
-    }
-}
-
-function loadPostsFromServer() {
-    fetch(`${API_URL}/api/posts`)
-        .then(response => response.json())
-        .then(posts => {
-            renderPosts(posts);
-        })
-        .catch(error => {
-            console.error("Error fetching posts:", error);
-            alert("Could not load posts.");
-        });
-}
-
-// पेज लोड होते ही यह फंक्शन चलेगा
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. ब्राउज़र की मेमोरी से यूजरनेम निकालो
-    const storedUsername = localStorage.getItem('loggedInUser');
-
-    // 2. चेक करो कि यूजरनेम है या नहीं
-    if (!storedUsername) {
-        // अगर यूजरनेम नहीं है, तो उसे लॉगिन पेज पर वापस भेज दो
-        alert('You are not logged in. Redirecting to home page.');
-        window.location.href = 'home.html';
-    } else {
-        loggedInUser = { username: storedUsername }; // Set the logged in user
-        // अगर यूजरनेम है, तो ऐप शुरू करो
-        initializeApp(storedUsername);
-    }
-});
-
-function initializeApp(username) {
-    // वेलकम मैसेज दिखाओ
-    welcomeMessage.textContent = `Hello, ${username}`;
-    appScreen.style.display = 'block'; // Ensure the app is visible
-
-    // लोड करें सर्वर से पोस्ट्स
-    loadPostsFromServer();
-
-    // Modal खोलने और बंद करने का लॉजिक
-    openModalBtn.addEventListener('click', () => postModal.classList.add('active'));
-    closeModalBtn.addEventListener('click', () => postModal.classList.remove('active'));
-
-    // पोस्ट बनाने का लॉजिक
-    postForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const postText = event.target['post-text'].value;
-        const postImageFile = event.target['post-image'].files[0];
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-            const imageBase64 = reader.result;
-            // सर्वर पर नया पोस्ट भेजें
-            fetch(`${API_URL}/api/create-post`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username: loggedInUser.username, text: postText, image: imageBase64 }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Post created:", data);
-                // नया पोस्ट बनाने के बाद फिर से सभी पोस्ट लोड करें
-                loadPostsFromServer();
-                postModal.classList.remove('active');
-                postForm.reset();
-            })
-            .catch(error => {
-                console.error("Error creating post:", error);
-                alert("Could not create post.");
-            });
-        };
-
-        if (postImageFile) {
-            reader.readAsDataURL(postImageFile);
-        } else {
-            // बिना इमेज के पोस्ट भेजें
-            fetch(`${API_URL}/api/create-post`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username: loggedInUser.username, text: postText, image: null }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Post created:", data);
-                // नया पोस्ट बनाने के बाद फिर से सभी पोस्ट लोड करें
-                loadPostsFromServer();
-                postModal.classList.remove('active');
-                postForm.reset();
-            })
-            .catch(error => {
-                console.error("Error creating post:", error);
-                alert("Could not create post.");
-            });
-        }
-    });
-}
-</script>
 </body>
 </html>

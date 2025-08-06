@@ -1,4 +1,4 @@
-/* Add this to the top of studentszone.css */
+/* studentszone.css */
 :root {
     --primary-bg: #121212;
     --secondary-bg: #1E1E1E;
@@ -10,105 +10,164 @@
 }
 
 body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--primary-bg);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 700px;
-            margin: auto;
-        }
-        /* Login Screen Styles */
-        #login-screen {
-            background-color: var(--card-bg);
-            padding: 40px;
-            border-radius: 12px;
-            text-align: center;
-            margin-top: 50px;
-        }
-        #login-screen h1 { margin-top: 0; }
-        #login-screen input {
-            width: 80%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background-color: var(--secondary-bg);
-            color: var(--text-primary);
-            font-size: 16px;
-        }
-        .login-btn {
-            background-color: var(--accent-color);
-            color: #000;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 20px;
+}
 
-        /* Student Zone (Main App) Styles */
-        #student-zone-app {
-            /* display: none; Initially hidden */
-        }
-        .zone-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-        .create-post-btn {
-            background-color: blue;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .feed {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        #empty-feed-message {
-            text-align: center;
-            padding: 50px;
-            color: var(--text-secondary);
-        }
-        .post {
-            background-color: skyblue;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px 20px;
-        }
-        .post-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .post-header .username { font-weight: bold; }
-        .post-body p { line-height: 1.6; white-space: pre-wrap; }
-        .post-body img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
-        
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); display: none;
-            justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-content {
-            background-color: skyblue; padding: 25px;
-            border-radius: 15px; width: 90%; max-width: 500px;
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { margin: 0; }
-        .close-modal-btn { background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; }
-        #create-post-form textarea { width: 100%; min-height: 120px; background-color: var(--secondary-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; color: var(--text-primary); font-size: 16px; box-sizing: border-box; }
-        .submit-post-btn { background-color: var(--accent-color); color: #000; border: none; padding: 12px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; float: right; margin-top: 15px;}
+.container {
+    max-width: 700px;
+    margin: auto;
+}
+
+#student-zone-app {
+    /* Main app container styles */
+}
+
+.zone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.zone-header h1 {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+.zone-header h2 {
+    font-size: 0.9em;
+    font-weight: normal;
+    color: var(--text-secondary);
+    margin: 5px 0 0 0;
+}
+
+.create-post-btn, .logout-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.create-post-btn {
+    background-color: var(--accent-color);
+    color: #000;
+}
+
+.logout-btn {
+    background-color: #e4e6eb;
+    color: #000;
+    margin-left: 10px;
+}
+
+.create-post-btn:hover, .logout-btn:hover {
+    opacity: 0.8;
+}
+
+
+.feed {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.post {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px 20px;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.post-header .username {
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.post-body p {
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.post-body img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Initially hidden */
+    justify-content: center; align-items: center; z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex; /* Show when active */
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 25px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.modal-header h2 { margin: 0; }
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#create-post-form textarea {
+    width: 100%;
+    min-height: 120px;
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    color: var(--text-primary);
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.submit-post-btn {
+    background-color: var(--accent-color);
+    color: #000;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+    margin-top: 15px;
+}

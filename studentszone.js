@@ -1,43 +1,48 @@
+// studentszone.js
+
 // Import necessary functions from the Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
 
 // ======================================================
 // 1. FIREBASE CONFIGURATION
 // ======================================================
 const firebaseConfig = {
-  apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE",
-  authDomain: "campussecrets-cc4b8.firebaseapp.com",
-  projectId: "campussecrets-cc4b8",
-  storageBucket: "campussecrets-cc4b8.firebasestorage.app",
-  messagingSenderId: "375125385371",
-  appId: "1:375125385371:web:c6978d28896e25c86ce63e"
+
+  apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE",
+
+  authDomain: "campussecrets-cc4b8.firebaseapp.com",
+
+  projectId: "campussecrets-cc4b8",
+
+  storageBucket: "campussecrets-cc4b8.firebasestorage.app",
+
+  messagingSenderId: "375125385371",
+
+  appId: "1:375125385371:web:c6978d28896e25c86ce63e"
+
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app); // Initialize Firebase Storage
 
 // ======================================================
-// 2. AUTHENTICATION CHECK (VERY IMPORTANT)
+// 2. AUTHENTICATION CHECK
 // ======================================================
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // User is logged in, initialize the app
-        const username = user.email.split('@')[0]; // Extract username from dummy email
+        const username = user.email.split('@')[0];
         initializeApp(username);
     } else {
-        // User is not logged in, redirect to the login page
-        console.log("No user is signed in.");
         window.location.href = 'index.html';
     }
 });
 
 function initializeApp(username) {
-    // ======================================================
-    // 3. GET HTML ELEMENTS
-    // ======================================================
     const welcomeMessage = document.getElementById('welcome-message');
     const logoutBtn = document.getElementById('logout-btn');
     const openModalBtn = document.getElementById('open-modal-btn');
@@ -45,56 +50,73 @@ function initializeApp(username) {
     const postModal = document.getElementById('post-modal');
     const postForm = document.getElementById('create-post-form');
     const postTextInput = document.querySelector('textarea[name="post-text"]');
+    const postImageInput = document.querySelector('input[name="post-image"]');
     const postFeed = document.getElementById('post-feed');
 
-    // Display welcome message
     welcomeMessage.textContent = `Hello, ${username}`;
 
-    // ======================================================
-    // 4. LOGOUT LOGIC
-    // ======================================================
+    // Logout logic
     logoutBtn.addEventListener('click', () => {
         signOut(auth).catch(error => console.error('Sign out error', error));
     });
 
-    // ======================================================
-    // 5. MODAL LOGIC
-    // ======================================================
+    // Modal logic
     openModalBtn.addEventListener('click', () => postModal.classList.add('active'));
     closeModalBtn.addEventListener('click', () => postModal.classList.remove('active'));
 
-    // ======================================================
-    // 6. CREATE NEW POST LOGIC (Saves to Firestore)
-    // ======================================================
+    // Create new post logic
     postForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const postText = postTextInput.value.trim();
+        const postImageFile = postImageInput.files[0];
 
-        if (postText) {
-            try {
-                // Add a new document to the "student_posts" collection in Firestore
-                await addDoc(collection(db, "student_posts"), {
-                    text: postText,
-                    author: username, // Save the author's username
-                    createdAt: serverTimestamp() // Add a server-side timestamp
-                });
-                postForm.reset(); // Clear the form
-                postModal.classList.remove('active'); // Close the modal
-            } catch (error) {
-                console.error("Error adding post: ", error);
-                alert("Could not create post. Please try again.");
-            }
+        if (!postText && !postImageFile) {
+            alert("Please write something or upload an image.");
+            return;
+        }
+
+        let imageUrl = null;
+        if (postImageFile) {
+            // Upload image to Firebase Storage
+            const storageRef = ref(storage, `post_images/${Date.now()}_${postImageFile.name}`);
+            
+            // We need to convert the file to a data URL string to upload
+            const reader = new FileReader();
+            reader.readAsDataURL(postImageFile);
+            reader.onload = async () => {
+                const dataUrl = reader.result;
+                await uploadString(storageRef, dataUrl, 'data_url');
+                imageUrl = await getDownloadURL(storageRef);
+                savePost(postText, imageUrl, username);
+            };
+        } else {
+            // Save post without an image
+            savePost(postText, imageUrl, username);
         }
     });
+    
+    async function savePost(text, imageUrl, author) {
+        try {
+            await addDoc(collection(db, "student_posts"), {
+                text: text,
+                imageUrl: imageUrl, // Can be null
+                author: author,
+                createdAt: serverTimestamp()
+            });
+            postForm.reset();
+            postModal.classList.remove('active');
+        } catch (error) {
+            console.error("Error adding post: ", error);
+            alert("Could not create the post.");
+        }
+    }
 
-    // ======================================================
-    // 7. DISPLAY ALL POSTS (REAL-TIME from Firestore)
-    // ======================================================
-    const postsCollection = collection(db, "student_posts");
-    const q = query(postsCollection, orderBy("createdAt", "desc")); // Order by newest first
 
-    onSnapshot(q, (snapshot) => {
-        postFeed.innerHTML = ''; // Clear old posts
+    // Display all posts in real-time
+    const postsQuery = query(collection(db, "student_posts"), orderBy("createdAt", "desc"));
+    
+    onSnapshot(postsQuery, (snapshot) => {
+        postFeed.innerHTML = '';
         if (snapshot.empty) {
             postFeed.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No posts yet. Be the first to share!</p>';
         } else {
@@ -104,6 +126,7 @@ function initializeApp(username) {
                 postElement.className = 'post';
                 
                 const postDate = postData.createdAt ? postData.createdAt.toDate().toLocaleString() : 'Just now';
+                const imageHTML = postData.imageUrl ? `<img src="${postData.imageUrl}" style="max-width:100%; border-radius:8px; margin-top:10px;">` : '';
 
                 postElement.innerHTML = `
                     <div class="post-header">
@@ -111,7 +134,8 @@ function initializeApp(username) {
                         <span class="timestamp">${postDate}</span>
                     </div>
                     <div class="post-body">
-                        <p>${postData.text.replace(/\n/g, '<br>')}</p>
+                        <p>${postData.text ? postData.text.replace(/\n/g, '<br>') : ''}</p>
+                        ${imageHTML}
                     </div>
                 `;
                 postFeed.appendChild(postElement);

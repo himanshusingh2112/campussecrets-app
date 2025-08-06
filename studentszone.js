@@ -10,10 +10,10 @@ import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstat
 // 1. FIREBASE CONFIGURATION
 // ======================================================
 const firebaseConfig = {
-    apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE", // **यहाँ आपकी असली KEY होनी चाहिए**
+    apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE", // **यहाँ अपनी असली KEY डालें**
     authDomain: "campussecrets-cc4b8.firebaseapp.com",
     projectId: "campussecrets-cc4b8",
-    storageBucket: "campussecrets-cc4b8.appspot.com", // **सुनिश्चित करें कि यह सही है**
+    storageBucket: "campussecrets-cc4b8.appspot.com",
     messagingSenderId: "375125385371",
     appId: "1:375125385371:web:c6978d28896e25c86ce63e"
 };
@@ -21,7 +21,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app); // Firebase Storage को शुरू करें
+const storage = getStorage(app);
 
 // ======================================================
 // 2. AUTHENTICATION CHECK
@@ -29,14 +29,14 @@ const storage = getStorage(app); // Firebase Storage को शुरू कर�
 onAuthStateChanged(auth, (user) => {
     if (user) {
         const username = user.email.split('@')[0];
-        // फंक्शन का नाम बदला गया
+        // **सुधार:** फंक्शन का नया नाम कॉल करें
         runStudentZoneApp(username);
     } else {
         window.location.href = 'index.html';
     }
 });
 
-// फंक्शन का नाम बदला गया
+// **सुधार:** फंक्शन का नाम बदल दिया गया है
 function runStudentZoneApp(username) {
     const welcomeMessage = document.getElementById('welcome-message');
     const logoutBtn = document.getElementById('logout-btn');

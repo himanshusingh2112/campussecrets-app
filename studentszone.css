@@ -1,3 +1,14 @@
+/* Add this to the top of studentszone.css */
+:root {
+    --primary-bg: #121212;
+    --secondary-bg: #1E1E1E;
+    --card-bg: #2A2A2A;
+    --text-primary: #EAEAEA;
+    --text-secondary: #B3B3B3;
+    --accent-color: #BB86FC;
+    --border-color: #3A3A3A;
+}
+
 body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--primary-bg);

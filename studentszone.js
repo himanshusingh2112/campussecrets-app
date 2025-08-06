@@ -1,132 +1,121 @@
-// studentszone.js
+// Import necessary functions from the Firebase SDK
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-// --- Global Variables ---
-let loggedInUser = null; // To store the current user's info (will be populated from localStorage)
-const ONE_WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000; // 1 week in milliseconds
+// ======================================================
+// 1. FIREBASE CONFIGURATION
+// ======================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE",
+  authDomain: "campussecrets-cc4b8.firebaseapp.com",
+  projectId: "campussecrets-cc4b8",
+  storageBucket: "campussecrets-cc4b8.firebasestorage.app",
+  messagingSenderId: "375125385371",
+  appId: "1:375125385371:web:c6978d28896e25c86ce63e"
+};
 
-// --- DOM Elements ---
-const loginScreen = document.getElementById('login-screen'); // Assuming this is present if login was not successful initially
-const appScreen = document.getElementById('student-zone-app');
-const loginBtn = document.getElementById('login-btn'); // Assuming this is for a direct login on this page (if you decide to add one later)
-const usernameInput = document.getElementById('username-input'); // Assuming this is for a direct login on this page (if you decide to add one later)
-const postFeed = document.getElementById('post-feed');
-const emptyFeedMessage = document.getElementById('empty-feed-message'); // Make sure this element exists in your studentszone.html
-const openModalBtn = document.getElementById('open-modal-btn');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const postModal = document.getElementById('post-modal');
-const postForm = document.getElementById('create-post-form');
-const welcomeMessage = document.getElementById('welcome-message');
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Helper function to create the HTML for a post
-function createPostElement(postData) {
-    const article = document.createElement('article');
-    article.className = 'post';
-
-    const timeAgo = Math.round((Date.now() - postData.createdAt) / 60000); // in minutes
-    const imageHTML = postData.image ? `<img src="${postData.image}" class="post-image">` : '';
-
-    article.innerHTML = `
-        <div class="post-header">
-            <span class="username">${postData.username}</span>
-            <span class="post-time" style="margin-left:auto; font-size:12px; color: #888;">${timeAgo} mins ago</span>
-        </div>
-        <div class="post-body">
-            <p>${postData.text}</p>
-            ${imageHTML}
-        </div>
-    `;
-    return article;
-}
-
-function renderPosts(posts) {
-    postFeed.innerHTML = ''; // Clear the feed first
-    if (posts.length === 0) {
-        const emptyMessage = document.createElement('p');
-        emptyMessage.id = 'empty-feed-message';
-        emptyMessage.textContent = 'No posts yet. Create your first post!';
-        postFeed.appendChild(emptyMessage);
+// ======================================================
+// 2. AUTHENTICATION CHECK (VERY IMPORTANT)
+// ======================================================
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // User is logged in, initialize the app
+        const username = user.email.split('@')[0]; // Extract username from dummy email
+        initializeApp(username);
     } else {
-        posts.forEach(post => {
-            const postElement = createPostElement(post);
-            postFeed.appendChild(postElement);
-        });
-    }
-}
-
-function loadPostsFromStorage() {
-    // Get posts from browser's local storage
-    const storedPosts = JSON.parse(localStorage.getItem('studentPosts') || '[]');
-
-    const now = Date.now();
-
-    // Filter out posts that are older than 1 week
-    const validPosts = storedPosts.filter(post => {
-        return (now - post.createdAt) < ONE_WEEK_IN_MS;
-    });
-
-    // Update the local storage with only valid (non-expired) posts
-    localStorage.setItem('studentPosts', JSON.stringify(validPosts));
-
-    // Display the valid posts on the screen
-    renderPosts(validPosts);
-}
-
-// पेज लोड होते ही यह फंक्शन चलेगा
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. ब्राउज़र की मेमोरी से यूजरनेम निकालो
-    const storedUsername = localStorage.getItem('loggedInUser');
-
-    // 2. चेक करो कि यूजरनेम है या नहीं
-    if (!storedUsername) {
-        // अगर यूजरनेम नहीं है, तो उसे लॉगिन पेज पर वापस भेज दो
-        alert('You are not logged in. Redirecting to home page.');
-        window.location.href = 'home.html';
-    } else {
-        loggedInUser = { username: storedUsername }; // Set the logged in user
-        // अगर यूजरनेम है, तो ऐप शुरू करो
-        initializeApp(storedUsername);
+        // User is not logged in, redirect to the login page
+        console.log("No user is signed in.");
+        window.location.href = 'index.html';
     }
 });
 
 function initializeApp(username) {
-    // वेलकम मैसेज दिखाओ
+    // ======================================================
+    // 3. GET HTML ELEMENTS
+    // ======================================================
+    const welcomeMessage = document.getElementById('welcome-message');
+    const logoutBtn = document.getElementById('logout-btn');
+    const openModalBtn = document.getElementById('open-modal-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const postModal = document.getElementById('post-modal');
+    const postForm = document.getElementById('create-post-form');
+    const postTextInput = document.querySelector('textarea[name="post-text"]');
+    const postFeed = document.getElementById('post-feed');
+
+    // Display welcome message
     welcomeMessage.textContent = `Hello, ${username}`;
 
-    // लोड करें पहले से मौजूद पोस्ट्स
-    loadPostsFromStorage();
+    // ======================================================
+    // 4. LOGOUT LOGIC
+    // ======================================================
+    logoutBtn.addEventListener('click', () => {
+        signOut(auth).catch(error => console.error('Sign out error', error));
+    });
 
-    // Modal खोलने और बंद करने का लॉजिक
+    // ======================================================
+    // 5. MODAL LOGIC
+    // ======================================================
     openModalBtn.addEventListener('click', () => postModal.classList.add('active'));
     closeModalBtn.addEventListener('click', () => postModal.classList.remove('active'));
 
-    // पोस्ट बनाने का लॉजिक
-    postForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const postText = event.target['post-text'].value;
-        const postImageFile = event.target['post-image'].files[0];
+    // ======================================================
+    // 6. CREATE NEW POST LOGIC (Saves to Firestore)
+    // ======================================================
+    postForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const postText = postTextInput.value.trim();
 
-        // Create a post object with the LOGGED IN USER's name and a timestamp
-        const newPostData = {
-            username: loggedInUser.username, // Dynamic username!
-            text: postText,
-            image: postImageFile ? URL.createObjectURL(postImageFile) : null,
-            createdAt: Date.now() // Timestamp for expiry
-        };
-
-        // Add to the top of the feed visually
-        const postElement = createPostElement(newPostData);
-        postFeed.prepend(postElement);
-        const emptyFeedMessageElement = document.getElementById('empty-feed-message');
-        if (emptyFeedMessageElement) {
-            emptyFeedMessageElement.remove();
+        if (postText) {
+            try {
+                // Add a new document to the "student_posts" collection in Firestore
+                await addDoc(collection(db, "student_posts"), {
+                    text: postText,
+                    author: username, // Save the author's username
+                    createdAt: serverTimestamp() // Add a server-side timestamp
+                });
+                postForm.reset(); // Clear the form
+                postModal.classList.remove('active'); // Close the modal
+            } catch (error) {
+                console.error("Error adding post: ", error);
+                alert("Could not create post. Please try again.");
+            }
         }
+    });
 
-        // Save the new post to our browser "database"
-        const allPosts = JSON.parse(localStorage.getItem('studentPosts') || '[]');
-        allPosts.unshift(newPostData); // Add to the beginning
-        localStorage.setItem('studentPosts', JSON.stringify(allPosts));
+    // ======================================================
+    // 7. DISPLAY ALL POSTS (REAL-TIME from Firestore)
+    // ======================================================
+    const postsCollection = collection(db, "student_posts");
+    const q = query(postsCollection, orderBy("createdAt", "desc")); // Order by newest first
 
-        postModal.classList.remove('active');
-        postForm.reset();
+    onSnapshot(q, (snapshot) => {
+        postFeed.innerHTML = ''; // Clear old posts
+        if (snapshot.empty) {
+            postFeed.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No posts yet. Be the first to share!</p>';
+        } else {
+            snapshot.forEach((doc) => {
+                const postData = doc.data();
+                const postElement = document.createElement('div');
+                postElement.className = 'post';
+                
+                const postDate = postData.createdAt ? postData.createdAt.toDate().toLocaleString() : 'Just now';
+
+                postElement.innerHTML = `
+                    <div class="post-header">
+                        <span class="username">${postData.author}</span>
+                        <span class="timestamp">${postDate}</span>
+                    </div>
+                    <div class="post-body">
+                        <p>${postData.text.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+                postFeed.appendChild(postElement);
+            });
+        }
     });
 }

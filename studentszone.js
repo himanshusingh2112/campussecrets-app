@@ -10,25 +10,18 @@ import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstat
 // 1. FIREBASE CONFIGURATION
 // ======================================================
 const firebaseConfig = {
-
-  apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE",
-
-  authDomain: "campussecrets-cc4b8.firebaseapp.com",
-
-  projectId: "campussecrets-cc4b8",
-
-  storageBucket: "campussecrets-cc4b8.firebasestorage.app",
-
-  messagingSenderId: "375125385371",
-
-  appId: "1:375125385371:web:c6978d28896e25c86ce63e"
-
+    apiKey: "YOUR_API_KEY", // **यहाँ अपनी असली KEY डालें**
+    authDomain: "campussecrets-cc4b8.firebaseapp.com",
+    projectId: "campussecrets-cc4b8",
+    storageBucket: "campussecrets-cc4b8.appspot.com",
+    messagingSenderId: "375125385371",
+    appId: "1:375125385371:web:c6978d28896e25c86ce63e"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app); // Initialize Firebase Storage
+const storage = getStorage(app);
 
 // ======================================================
 // 2. AUTHENTICATION CHECK
@@ -77,10 +70,7 @@ function initializeApp(username) {
 
         let imageUrl = null;
         if (postImageFile) {
-            // Upload image to Firebase Storage
             const storageRef = ref(storage, `post_images/${Date.now()}_${postImageFile.name}`);
-            
-            // We need to convert the file to a data URL string to upload
             const reader = new FileReader();
             reader.readAsDataURL(postImageFile);
             reader.onload = async () => {
@@ -90,7 +80,6 @@ function initializeApp(username) {
                 savePost(postText, imageUrl, username);
             };
         } else {
-            // Save post without an image
             savePost(postText, imageUrl, username);
         }
     });
@@ -99,7 +88,7 @@ function initializeApp(username) {
         try {
             await addDoc(collection(db, "student_posts"), {
                 text: text,
-                imageUrl: imageUrl, // Can be null
+                imageUrl: imageUrl,
                 author: author,
                 createdAt: serverTimestamp()
             });
@@ -110,7 +99,6 @@ function initializeApp(username) {
             alert("Could not create the post.");
         }
     }
-
 
     // Display all posts in real-time
     const postsQuery = query(collection(db, "student_posts"), orderBy("createdAt", "desc"));

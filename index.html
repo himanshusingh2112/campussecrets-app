@@ -26,50 +26,32 @@
     </div>
 
     <script type="module">
-        // Firebase SDK से ज़रूरी फंक्शन्स इम्पोर्ट करें
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-        // ======================================================
-        // 1. FIREBASE CONFIGURATION
-        // ======================================================
-        // यहाँ अपनी Firebase कॉन्फ़िगरेशन कीज़ पेस्ट करें
-      const firebaseConfig = {
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE",
+            authDomain: "campussecrets-cc4b8.firebaseapp.com",
+            projectId: "campussecrets-cc4b8",
+            storageBucket: "campussecrets-cc4b8.appspot.com",
+            messagingSenderId: "375125385371",
+            appId: "1:375125385371:web:c6978d28896e25c86ce63e"
+        };
 
-  apiKey: "AIzaSyAvlhxYxEC61ZqIgSu0lq4wxMrXfi-ySCE",
-
-  authDomain: "campussecrets-cc4b8.firebaseapp.com",
-
-  projectId: "campussecrets-cc4b8",
-
-  storageBucket: "campussecrets-cc4b8.firebasestorage.app",
-
-  messagingSenderId: "375125385371",
-
-  appId: "1:375125385371:web:c6978d28896e25c86ce63e"
-
-};
-        // Firebase को शुरू करें
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ======================================================
-        // 2. HTML ELEMENTS
-        // ======================================================
         const stdUserEl = document.getElementById('stdusername');
         const stdPassEl = document.getElementById('stdpassword');
         const stdBtn = document.getElementById('stdsignuplogin');
         const stdMsg = document.getElementById('std-message');
 
-        // ======================================================
-        // 3. EVENT LISTENER FOR THE BUTTON
-        // ======================================================
         stdBtn.addEventListener('click', async () => {
             const username = stdUserEl.value.trim();
             const password = stdPassEl.value.trim();
-            stdMsg.textContent = ''; // Clear previous messages
+            stdMsg.textContent = ''; 
 
             if (!username || !password) {
                 stdMsg.className = 'message error';
@@ -83,33 +65,29 @@
             }
 
             try {
-                // सबसे पहले लॉगिन करने की कोशिश करें
                 const dummyEmail = `${username}@campussecrets.me`;
                 await signInWithEmailAndPassword(auth, dummyEmail, password);
                 
                 stdMsg.className = 'message success';
-                stdMsg.textContent = `Welcome back, ${username}!`;
-                localStorage.setItem('loggedInUser', username);
+                stdMsg.textContent = `Welcome back, ${username}! Redirecting...`;
                 window.location.href = 'studentszone.html';
 
             } catch (error) {
-                if (error.code === 'auth/user-not-found') {
-                    // यूजर मौजूद नहीं है, तो नया अकाउंट बनाएं (साइन-अप)
+                // **THE FIX IS HERE:** We now check for the new error code.
+                if (error.code === 'auth/invalid-login-credentials') {
+                    // User might not exist or password might be wrong.
+                    // Let's assume they are a new user and try to sign them up.
                     handleSignUp(username, password);
-                } else if (error.code === 'auth/wrong-password') {
-                    stdMsg.className = 'message error';
-                    stdMsg.textContent = 'Incorrect password.';
                 } else {
                     console.error(error);
                     stdMsg.className = 'message error';
-                    stdMsg.textContent = 'An error occurred during login.';
+                    stdMsg.textContent = 'An unknown error occurred.';
                 }
             }
         });
 
-        // --- साइन-अप का फंक्शन ---
         async function handleSignUp(username, password) {
-            stdMsg.textContent = 'Username available. Creating new account...';
+            stdMsg.textContent = 'Username not found. Trying to create a new account...';
             stdMsg.className = 'message';
 
             const usernameRef = doc(db, "usernames", username.toLowerCase());
@@ -117,7 +95,7 @@
 
             if (usernameDoc.exists()) {
                 stdMsg.className = 'message error';
-                stdMsg.textContent = 'This username is already taken. Please choose another.';
+                stdMsg.textContent = 'This username is taken, and the password was incorrect.';
                 return;
             }
 

@@ -1,105 +1,151 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Campus Secrets</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="home.css">
+    <title>Campus Secrets</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
 </head>
 <body>
-  <div id="title_logo"><h1>Campus Secrets</h1></div>
-    <nav><ul>
-        <li><a href="#">Home</a></li><li><a href="#">Privacy</a></li><li><a href="#">Contact</a></li><li><a href="#">About</a></li>
-    </ul></nav>
+    <div id="title_logo"><h1>Campus Secrets</h1></div>
+    <nav><ul>
+        <li><a href="#">Home</a></li><li><a href="#">Privacy</a></li><li><a href="#">Contact</a></li><li><a href="#">About</a></li>
+    </ul></nav>
 
-    <div id="std" class="zone-container">
-        <h2>Students-Zone</h2>
-        <input type="text" id="stdusername" placeholder="Username">
-        <div class="message" id="std-message"></div>
-        <button type="button" id="stdsignuplogin">Enter</button>
-    </div>
+    <div id="std" class="zone-container">
+        <h2>Students-Zone</h2>
+        <input type="text" id="stdusername" placeholder="Choose a Username">
+        <input type="password" id="stdpassword" placeholder="Choose a Password">
+        <button type="button" id="stdsignuplogin">SignUp / Login</button>
+        <div class="message" id="std-message"></div>
+    </div>
 
-    <div id="fac" class="zone-container">
-        <h2>Faculty-Zone</h2>
-        <input type="text" id="facusername" placeholder="Username">
-        <input type="password" id="facpassword" placeholder="Password">
-        <button type="button" id="facsignuplogin">SignUp / Login</button>
-        <div class="message" id="fac-message"></div>
-    </div>
+    <div id="fac" class="zone-container">
+        <h2>Faculty-Zone</h2>
+        <p>(Logic not implemented yet)</p>
+    </div>
 
-    <div id="stdfac" class="zone-container">
-        <h2>Student & Faculty-Zone</h2>
-        <p><b>Login only.</b></p>
-        <input type="text" id="stdfacusername" placeholder="Username">
-        <input type="password" id="stdfacpassword" placeholder="Password">
-        <button type="button" id="stdfaclogin">Login</button>
-        <div class="message" id="stdfac-message"></div>
-    </div>
+    <div id="stdfac" class="zone-container">
+        <h2>Student & Faculty-Zone</h2>
+        <p>(Logic not implemented yet)</p>
+    </div>
 
-    <script>
-        const API_URL = 'http://localhost:3000';
+    <script type="module">
+        // Firebase SDK से ज़रूरी फंक्शन्स इम्पोर्ट करें
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-        // --- Student Zone ---
-        const stdUser = document.getElementById('stdusername');
-        const stdBtn = document.getElementById('stdsignuplogin');
-        const stdMsg = document.getElementById('std-message');
+        // ======================================================
+        // 1. FIREBASE CONFIGURATION
+        // ======================================================
+        // आपकी Firebase कॉन्फ़िगरेशन कीज़
+        const firebaseConfig = {
+            apiKey: "AIzaSy...SCE", // **यहाँ अपनी असली KEY डालें**
+            authDomain: "campussecrets-cc4b8.firebaseapp.com",
+            projectId: "campussecrets-cc4b8",
+            storageBucket: "campussecrets-cc4b8.appspot.com",
+            messagingSenderId: "375125385371",
+            appId: "1:375125385371:web:c6978d28896e25c86ce63e"
+        };
 
-        stdBtn.addEventListener('click', async () => {
-    let username = localStorage.getItem('randomUsername');
+        // Firebase को शुरू करें
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    if (!username) {
-        // पहली बार लॉगिन/साइनअप करने वाला यूजर, रैंडम यूजरनेम जनरेट करें
-        username = generateRandomUsername(); // आपको यह फंक्शन बनाना होगा
-        localStorage.setItem('randomUsername', username);
-    }
+        // ======================================================
+        // 2. HTML ELEMENTS
+        // ======================================================
+        const stdUserEl = document.getElementById('stdusername');
+        const stdPassEl = document.getElementById('stdpassword');
+        const stdBtn = document.getElementById('stdsignuplogin');
+        const stdMsg = document.getElementById('std-message');
 
-    stdMsg.textContent = '';
+        // ======================================================
+        // 3. EVENT LISTENER FOR THE BUTTON
+        // ======================================================
+        stdBtn.addEventListener('click', async () => {
+            const username = stdUserEl.value.trim();
+            const password = stdPassEl.value.trim();
+            stdMsg.textContent = ''; // Clear previous messages
 
-    try {
-        const loginRes = await fetch(`${API_URL}/login`, { // अब सिर्फ यूजरनेम भेजें
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username }) // पासवर्ड अब नहीं भेज रहे
-        });
+            if (!username || !password) {
+                stdMsg.className = 'message error';
+                stdMsg.textContent = 'Please enter username and password.';
+                return;
+            }
+            if (password.length < 6) {
+                stdMsg.className = 'message error';
+                stdMsg.textContent = 'Password must be at least 6 characters long.';
+                return;
+            }
 
-        const loginData = await loginRes.json();
+            // --- साइन-अप और लॉगिन का लॉजिक ---
+            try {
+                // सबसे पहले लॉगिन करने की कोशिश करें
+                const dummyEmail = `${username}@campussecrets.me`;
+                await signInWithEmailAndPassword(auth, dummyEmail, password);
+                
+                // अगर लॉगिन सफल हुआ
+                stdMsg.className = 'message success';
+                stdMsg.textContent = `Welcome back, ${username}!`;
+                localStorage.setItem('loggedInUser', username); // यूजर को मेमोरी में सेव करें
+                window.location.href = 'studentszone.html'; // स्टूडेंट ज़ोन पेज पर भेजें
 
-        if (loginRes.ok && loginData.role === 'student') {
-            alert(`Student login successful! Welcome ${username}`);
-            localStorage.setItem('loggedInUser', username);
-            window.location.href = 'studentszone.html';
-            return;
-        } else if (loginRes.status === 404) { // यूजर नहीं मिला, तो साइनअप करें
-            const signupRes = await fetch(`${API_URL}/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, role: 'student' }) // पासवर्ड अब नहीं भेज रहे
-            });
+            } catch (error) {
+                // अगर लॉगिन फेल हुआ...
+                if (error.code === 'auth/user-not-found') {
+                    // यूजर मौजूद नहीं है, तो नया अकाउंट बनाएं (साइन-अप)
+                    handleSignUp(username, password);
+                } else if (error.code === 'auth/wrong-password') {
+                    stdMsg.className = 'message error';
+                    stdMsg.textContent = 'Incorrect password.';
+                } else {
+                    console.error(error);
+                    stdMsg.className = 'message error';
+                    stdMsg.textContent = 'An error occurred during login.';
+                }
+            }
+        });
 
-            const signupData = await signupRes.json();
-            stdMsg.textContent = signupData.message;
-            stdMsg.className = signupRes.ok ? 'message success' : 'message error';
-            if (signupRes.ok) {
-                localStorage.setItem('loggedInUser', username);
-                window.location.href = 'studentszone.html';
-            }
-        } else {
-            stdMsg.textContent = loginData.message;
-            stdMsg.className = 'message error';
-        }
+        // --- साइन-अप का फंक्शन ---
+        async function handleSignUp(username, password) {
+            stdMsg.textContent = 'Username available. Creating new account...';
+            stdMsg.className = 'message';
 
-    } catch (e) {
-        console.error(e);
-        stdMsg.textContent = "Server error!";
-        stdMsg.className = 'message error';
-    }
-});
+            // स्टेप 1: Firestore में यूजरनेम चेक करें कि कहीं पहले से तो नहीं है
+            const usernameRef = doc(db, "usernames", username.toLowerCase());
+            const usernameDoc = await getDoc(usernameRef);
 
-function generateRandomUsername() {
-    const prefix = 'student';
-    const randomNumber = Math.random().toString(36).substring(2, 8); // 6 कैरेक्टर का रैंडम स्ट्रिंग
-    return `${prefix}-${randomNumber}`;
-}
-    </script>
+            if (usernameDoc.exists()) {
+                stdMsg.className = 'message error';
+                stdMsg.textContent = 'This username is already taken. Please choose another.';
+                return;
+            }
+
+            // स्टेप 2: एक नकली ईमेल बनाएं
+            const dummyEmail = `${username}@campussecrets.me`;
+
+            try {
+                // स्टेप 3: Firebase Auth में नया यूजर बनाएं
+                const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
+                console.log('User created in Auth:', userCredential.user);
+
+                // स्टेप 4: यूजरनेम को Firestore में सेव करें ताकि कोई और न ले सके
+                await setDoc(usernameRef, {
+                    uid: userCredential.user.uid // Auth User ID को लिंक करें
+                });
+
+                stdMsg.className = 'message success';
+                stdMsg.textContent = 'Account created successfully! Please login again to continue.';
+
+            } catch (authError) {
+                console.error('Error creating user:', authError);
+                stdMsg.className = 'message error';
+                stdMsg.textContent = authError.message; // Show specific Firebase error
+            }
+        }
+    </script>
 </body>
 </html>

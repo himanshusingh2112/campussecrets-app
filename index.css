@@ -1,14 +1,65 @@
-     body { font-family: Arial, sans-serif; text-align: center; background-color: #f0f2f5; }
-        nav { background-color: #333; padding: 10px; }
-        nav ul { list-style-type: none; margin: 0; padding: 0; display: flex; justify-content: center; }
-        nav li { margin: 0 15px; }
-        nav a { color: white; text-decoration: none; }
-        .zone-container {
-            background-color: white; width: 90%; max-width: 400px;
-            margin: 20px auto; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        input { width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { width: 60%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .message { margin-top: 10px; font-weight: bold; }
-        .success { color: green; }
-        .error { color: red; }
+    body { 
+        font-family: Arial, sans-serif; 
+        text-align: center; 
+        background-color: #f0f2f5; 
+        margin: 0; 
+        padding: 20px;
+    }
+    nav { 
+        background-color: #333; 
+        padding: 10px; 
+    }
+    nav ul { 
+        list-style-type: none; 
+        margin: 0; 
+        padding: 0; 
+        display: flex; 
+        justify-content: center; 
+    }
+    nav li { 
+        margin: 0 15px; 
+    }
+    nav a { 
+        color: white; 
+        text-decoration: none; 
+    }
+    .zone-container {
+        background-color: white; 
+        width: 90%; 
+        max-width: 400px;
+        margin: 20px auto; 
+        padding: 20px; 
+        border-radius: 8px; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    input { 
+        width: 90%; 
+        padding: 10px; 
+        margin-bottom: 10px; 
+        border: 1px solid #ccc; 
+        border-radius: 5px; 
+    }
+    button { 
+        width: 60%; 
+        padding: 10px; 
+        background-color: #007bff; 
+        color: white; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer; 
+        transition: background-color 0.2s; 
+    }
+    button:hover { 
+        background-color: #0056b3; 
+    }
+    .message { 
+        margin-top: 10px; 
+        font-weight: bold; 
+        min-height: 20px; 
+    }
+    .success { 
+        color: green; 
+    }
+    .error { 
+        color: red; 
+    }

@@ -83,29 +83,21 @@ function runStudentZoneApp(username) {
         }
     });
     
-    // ✅ नया और सही फंक्शन
-async function savePost(text, author) {
-    const user = auth.currentUser; // वर्तमान यूज़र की जानकारी लें
-
-    if (!user) {
-        console.error("User not logged in!");
-        return; // अगर यूज़र लॉग-इन नहीं है तो रोक दें
+    async function savePost(text, imageUrl, author) {
+        try {
+            await addDoc(collection(db, "student_posts"), {
+                text: text,
+                imageUrl: imageUrl,
+                author: author,
+                createdAt: serverTimestamp()
+            });
+            postForm.reset();
+            postModal.classList.remove('active');
+        } catch (error) {
+            console.error("Error adding post: ", error);
+            alert("Could not create the post.");
+        }
     }
-
-    try {
-        await addDoc(collection(db, "student_posts"), {
-            text: text,
-            author: author,
-            createdAt: serverTimestamp(),
-            userId: user.uid // <-- सबसे ज़रूरी: यूज़र की यूनिक ID सेव करें
-        });
-        postForm.reset();
-        postModal.classList.remove('active');
-    } catch (error) {
-        console.error("Error adding post: ", error);
-        alert("Could not create the post.");
-    }
-}
 
     const postsQuery = query(collection(db, "student_posts"), orderBy("createdAt", "desc"));
     

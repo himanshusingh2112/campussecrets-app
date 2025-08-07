@@ -48,6 +48,12 @@ function runStudentZoneApp(username) {
     const postImageInput = document.querySelector('input[name="post-image"]');
     const postFeed = document.getElementById('post-feed');
 
+    postImageInput.addEventListener('click', (event) => {
+        // यह फाइल चुनने वाले डायलॉग को खुलने से रोकता है
+        event.preventDefault(); 
+        alert('Image upload is currently not working.');
+    });
+    
     welcomeMessage.textContent = `Hello, ${username}`;
 
     logoutBtn.addEventListener('click', () => {
@@ -57,31 +63,47 @@ function runStudentZoneApp(username) {
     openModalBtn.addEventListener('click', () => postModal.classList.add('active'));
     closeModalBtn.addEventListener('click', () => postModal.classList.remove('active'));
 
-    postForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const postText = postTextInput.value.trim();
-        const postImageFile = postImageInput.files[0];
+    // postForm.addEventListener('submit', async (e) => {
+    //     e.preventDefault();
+    //     const postText = postTextInput.value.trim();
+    //     const postImageFile = postImageInput.files[0];
 
-        if (!postText && !postImageFile) {
-            alert("Please write something or upload an image.");
-            return;
-        }
+    //     if (!postText && !postImageFile) {
+    //         alert("Please write something or upload an image.");
+    //         return;
+    //     }
 
-        let imageUrl = null;
-        if (postImageFile) {
-            const storageRef = ref(storage, `post_images/${Date.now()}_${postImageFile.name}`);
-            const reader = new FileReader();
-            reader.readAsDataURL(postImageFile);
-            reader.onload = async () => {
-                const dataUrl = reader.result;
-                await uploadString(storageRef, dataUrl, 'data_url');
-                imageUrl = await getDownloadURL(storageRef);
-                savePost(postText, imageUrl, username);
-            };
-        } else {
-            savePost(postText, imageUrl, username);
-        }
-    });
+    //     let imageUrl = null;
+    //     if (postImageFile) {
+    //         const storageRef = ref(storage, `post_images/${Date.now()}_${postImageFile.name}`);
+    //         const reader = new FileReader();
+    //         reader.readAsDataURL(postImageFile);
+    //         reader.onload = async () => {
+    //             const dataUrl = reader.result;
+    //             await uploadString(storageRef, dataUrl, 'data_url');
+    //             imageUrl = await getDownloadURL(storageRef);
+    //             savePost(postText, imageUrl, username);
+    //         };
+    //     } else {
+    //         savePost(postText, imageUrl, username);
+    //     }
+    // });
+
+    // ✅ यह नया और सही कोड है
+postForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const postText = postTextInput.value.trim();
+
+    // सिर्फ यह चेक करें कि टेक्स्ट खाली तो नहीं है
+    if (!postText) {
+        alert("Please write something to post.");
+        return;
+    }
+
+    // सीधे पोस्ट को सेव करें (बिना इमेज के)
+    // यहाँ imageUrl को null भेज रहे हैं
+    savePost(postText, null, username); 
+});
     
     async function savePost(text, imageUrl, author) {
         try {

@@ -159,7 +159,11 @@ body {
     font-size: 16px;
     box-sizing: border-box;
 }
-
+/* यह फाइल इनपुट बटन को डिसेबल जैसा दिखाएगा */
+input[type="file"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
 .submit-post-btn {
     background-color: var(--accent-color);
     color: #000;

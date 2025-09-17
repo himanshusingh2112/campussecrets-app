@@ -29,14 +29,14 @@ const storage = getStorage(app);
 onAuthStateChanged(auth, (user) => {
     if (user) {
         const username = user.email.split('@')[0];
-        // **सुधार:** फंक्शन का नया नाम कॉल करें
+
         runStudentZoneApp(username);
     } else {
         window.location.href = 'index.html';
     }
 });
 
-// **सुधार:** फंक्शन का नाम बदल दिया गया है
+
 function runStudentZoneApp(username) {
     const welcomeMessage = document.getElementById('welcome-message');
     const logoutBtn = document.getElementById('logout-btn');
@@ -49,7 +49,7 @@ function runStudentZoneApp(username) {
     const postFeed = document.getElementById('post-feed');
 
     postImageInput.addEventListener('click', (event) => {
-        // यह फाइल चुनने वाले डायलॉग को खुलने से रोकता है
+
         event.preventDefault(); 
         alert('Image upload is currently not working.');
     });
@@ -89,7 +89,6 @@ function runStudentZoneApp(username) {
     //     }
     // });
 
-    // ✅ यह नया और सही कोड है
 postForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const postText = postTextInput.value.trim();
@@ -100,8 +99,7 @@ postForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    // सीधे पोस्ट को सेव करें (बिना इमेज के)
-    // यहाँ imageUrl को null भेज रहे हैं
+    
     savePost(postText, null, username); 
 });
     
